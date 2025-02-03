@@ -13,21 +13,24 @@ struct ContentView: View {
         ZStack{
             
             VStack {
+                
                 Rectangle()
                     .foregroundColor(Color.orange)
-                    .frame(width: 1000, height: 300)
+                    .frame(width: 1200, height: 300)
                     .clipShape(UnevenRoundedRectangle(bottomLeadingRadius: 50))
-                    .mask(alphaMaskTop(width:1000, height:300))
+                    .mask(alphaMaskTop(width:1200, height:300))
                 Spacer()
                 Rectangle()
                     .foregroundColor(Color.orange)
-                    .frame(width: 1000, height: 600)
+                    .frame(width: 1200, height: 600)
                     .clipShape(UnevenRoundedRectangle(topLeadingRadius: 50))
-                    .mask(alphaMaskBottom(width:1000, height:600))
+                    .mask(alphaMaskBottom(width:1200, height:600))
             }
             
             .padding()
+            #if os(iOS)
             .statusBar(hidden: true)
+            #endif
             .containerRelativeFrame([.horizontal, .vertical])
             //.ignoresSafeArea()
             
@@ -39,11 +42,186 @@ struct ContentView: View {
    
             
             
-            
+            VStack{
+                Spacer()
+                HStack{
+                    Spacer()
+                    clockView()
+                    Spacer()
+                    calView()
+                }
+                
+                Spacer(minLength: 320)
+
+                
+                buttonView()
+                Spacer()
+              
+                
+            }//end of HStack
+            .frame(alignment: .bottom)//
             
         }
     }
         
+}
+
+enum EachWeekDay: String, CaseIterable{
+    case Sun
+    case Mon
+    case Tue
+    case Wed
+    case Thu
+    case Fri
+    case Sat
+    
+}
+
+
+func TSButton(_ action: @escaping() -> Void) -> some View {
+    return Button(action: {}) {
+        Text("This is__<>Button!")
+            .font(  .system( size: 28)
+                .weight(.semibold)
+                    .monospaced()
+                    
+            )
+        
+           
+    }
+    .padding(.horizontal, 30)
+    //.padding(20)
+    .foregroundStyle(.black)
+    .background(Color.orange)
+    .clipShape(.capsule)
+}
+
+
+
+
+struct SometestView: View {
+    var body: some View {
+        
+        ForEach(EachWeekDay.allCases, id: \.rawValue) { item in
+            Rectangle()
+                            .frame(width: 50, height: 100, alignment: .bottom)
+                            .foregroundColor(Color.green)
+                            .clipShape(UnevenRoundedRectangle(topLeadingRadius: 10, topTrailingRadius: 10))
+                            .overlay(Text(item.rawValue))
+        }
+    }
+}
+func todayString() -> String {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "EEE"
+    let dayOfTheWeekString = dateFormatter.string(from: Date())
+    return dayOfTheWeekString
+}
+
+@ViewBuilder func calView() -> some View {
+
+    
+    HStack{
+       
+        
+        ForEach(EachWeekDay.allCases, id: \.rawValue) { item in
+            
+            if item.rawValue == todayString(){
+                Rectangle()
+                    .frame(width: 50, height: 120, alignment: .bottom)
+                    .foregroundColor(Color.green)
+                    .clipShape(UnevenRoundedRectangle(topLeadingRadius: 10, topTrailingRadius: 10))
+                    .overlay(alignment: .top, content: {Text(item.rawValue).padding(.top, 5)})
+            }
+            else{
+                Rectangle()
+                    .frame(width: 50, height: 100, alignment: .bottom)
+                    .foregroundColor(Color.green)
+                    .clipShape(UnevenRoundedRectangle(topLeadingRadius: 10, topTrailingRadius: 10))
+                    .overlay(alignment: .top, content: {Text(item.rawValue).padding(.top, 5)})
+                   // .overlay(Text(item.rawValue))
+            }
+        }
+        
+        
+//        EachWeekDay.allCases.forEach { day in
+//            Rectangle()
+//                .frame(width: 50, height: 100, alignment: .bottom)
+//                .foregroundColor(Color.green)
+//                .clipShape(UnevenRoundedRectangle(topLeadingRadius: 10, topTrailingRadius: 10))
+//                .overlay(Text(day.rawValue))
+//            
+//        }
+       
+        
+//        Rectangle()
+//                        .frame(width: 50, height: 100, alignment: .bottom)
+//                        .foregroundColor(Color.green)
+//                        .clipShape(UnevenRoundedRectangle(topLeadingRadius: 10, topTrailingRadius: 10))
+//                        .overlay(Text(EachWeekDay.Mon.rawValue))
+//        EachWeekDay.allCases.forEach { day in
+//            print(day.rawValue)
+//        }
+        
+//        ForEach(0..<7){num in
+//            Rectangle()
+//                .frame(width: 50, height: 100, alignment: .bottom)
+//                .foregroundColor(Color.green)
+//                .clipShape(UnevenRoundedRectangle(topLeadingRadius: 10, topTrailingRadius: 10))
+//                .overlay(Text(EachWeekDay[num].rawValue))
+//        }
+    }
+}
+
+@ViewBuilder func buttonView() -> some View {
+    Grid{
+        
+        GridRow{
+            TSButton({})
+            
+        }
+        
+        GridRow {
+            ForEach(0..<2) { _ in TSButton({}) }
+        }
+        .gridColumnAlignment(.leading)
+        .padding(.vertical, 10)
+        
+        GridRow{
+            
+//            Button(action: {}) {
+//                Text("Hello, Bttn!")
+//                    .font(Font.system(size: 90))
+//            }
+//            .padding(10)
+//            .foregroundStyle(.black)
+//            .background(Color.orange)
+//            .clipShape(.capsule)
+        }
+        
+        GridRow{
+            Button(action: {}) {
+                Text("Hello, Button!")
+                    .font(Font.system(size: 40))
+            }.frame(width: 400)
+                .padding(10)
+                .foregroundStyle(.black)
+                .background(Color.orange)
+                .clipShape(.capsule)
+        }.gridColumnAlignment(.leading)
+            .padding(.vertical, 10)
+        
+    }  //end of grid
+    //.frame(width: 500, height: 100, alignment: .bottom)
+    //.frame(alignment: .bottom)//
+    
+}
+
+@ViewBuilder func clockView() -> some View {
+    Text(Date.now, format: .dateTime.hour(.twoDigits(amPM: .omitted)).minute().second())
+        .font(Font.system(size: 90))
+        .colorInvert()
+        .monospaced()
 }
 
 @ViewBuilder func alphaMaskTop(width:CGFloat, height:CGFloat) -> some View {
@@ -51,26 +229,16 @@ struct ContentView: View {
         //white is to keep and black is toss
     VStack(spacing: -height ){
             Rectangle()
-               // .fill()
-            
                 .foregroundColor(.white)
                 .frame(width: width, height: height)
         
-//                .mask(alignment: .topLeading){
-//                    UnevenRoundedRectangle(topLeadingRadius: 50)
-//                }
             Rectangle()
-               // .fill()
                 .foregroundColor(.black)
                 .frame(width: width, height: height)
                 .clipShape(.rect(cornerRadius: 30))
                 .offset(x: 100, y:-30)
-                .overlay(
-                    Text("9:42")
-                        .font(Font.system(size: 90))
-                        .colorInvert()
-                )
-       // }
+                
+
         
     }
         .compositingGroup()
