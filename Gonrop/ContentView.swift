@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+//import GNButtons
 
 struct ContentView: View {
     var body: some View {
@@ -32,9 +33,7 @@ struct ContentView: View {
             .statusBar(hidden: true)
             #endif
             .containerRelativeFrame([.horizontal, .vertical])
-            //.ignoresSafeArea()
-            
-            // .mask(maskView())
+
             
             
             .background(Color.black)
@@ -66,6 +65,15 @@ struct ContentView: View {
         
 }
 
+
+
+
+
+
+
+
+
+
 enum EachWeekDay: String, CaseIterable{
     case Sun
     case Mon
@@ -76,27 +84,6 @@ enum EachWeekDay: String, CaseIterable{
     case Sat
     
 }
-
-
-func TSButton(_ action: @escaping() -> Void) -> some View {
-    return Button(action: {}) {
-        Text("This is__<>Button!")
-            .font(  .system( size: 28)
-                .weight(.semibold)
-                    .monospaced()
-                    
-            )
-        
-           
-    }
-    .padding(.horizontal, 30)
-    //.padding(20)
-    .foregroundStyle(.black)
-    .background(Color.orange)
-    .clipShape(.capsule)
-}
-
-
 
 
 struct SometestView: View {
@@ -177,12 +164,17 @@ func todayString() -> String {
     Grid{
         
         GridRow{
-            TSButton({})
+            GNToggle({}).frame(width: 400)
+                .padding(10)
+                .foregroundStyle(.black)
+                .background(Color.orange)
+                .clipShape(.capsule)
+            
             
         }
         
         GridRow {
-            ForEach(0..<2) { _ in TSButton({}) }
+            ForEach(0..<2) { _ in GNButton({}) }
         }
         .gridColumnAlignment(.leading)
         .padding(.vertical, 10)
