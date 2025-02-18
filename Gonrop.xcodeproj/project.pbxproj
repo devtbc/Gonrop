@@ -29,6 +29,16 @@
 		90034DA82D47C4DE000FBB4E /* GonropUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GonropUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		900F85BB2D65215500BDA482 /* Exceptions for "media" folder in "Gonrop" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"798D7B0C-FC16-4B7A-8701-D16C1008C99A.png",
+			);
+			target = 90034D8D2D47C4DC000FBB4E /* Gonrop */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		90034D902D47C4DC000FBB4E /* Gonrop */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
@@ -43,6 +53,14 @@
 		90034DAB2D47C4DE000FBB4E /* GonropUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = GonropUITests;
+			sourceTree = "<group>";
+		};
+		900F85B92D65213A00BDA482 /* media */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				900F85BB2D65215500BDA482 /* Exceptions for "media" folder in "Gonrop" target */,
+			);
+			path = media;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -75,6 +93,7 @@
 		90034D852D47C4DC000FBB4E = {
 			isa = PBXGroup;
 			children = (
+				900F85B92D65213A00BDA482 /* media */,
 				90034D902D47C4DC000FBB4E /* Gonrop */,
 				90034DA12D47C4DE000FBB4E /* GonropTests */,
 				90034DAB2D47C4DE000FBB4E /* GonropUITests */,
@@ -109,6 +128,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				90034D902D47C4DC000FBB4E /* Gonrop */,
+				900F85B92D65213A00BDA482 /* media */,
 			);
 			name = Gonrop;
 			packageProductDependencies = (

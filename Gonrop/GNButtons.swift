@@ -27,6 +27,11 @@ func GNButton(_ label: String, _ action: @escaping() -> Void) -> some View {
 
 
 
+//struct GNToggle(_ label: String, _ action: @escaping() -> Void)): View {
+//    var body: some View {
+//        Text("Hello, World!")
+//    }
+//}
 
 func GNToggle(_ label: String, _ action: @escaping() -> Void) -> some View {
     @State var toggleState = false
@@ -53,11 +58,11 @@ func GNToggle(_ label: String, _ action: @escaping() -> Void) -> some View {
 struct GNButtonStyle: ButtonStyle{
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(  .system( size: 28)
+            .font(  .system( size: 38)
                 .weight(.semibold)
                     .monospaced()
                     )
-            .frame(width: 400)
+            .frame(width: 300)
             .padding(10)
             .foregroundStyle(.black)
             .background(Color.orange)
@@ -81,6 +86,6 @@ struct GNButtonStyle: ButtonStyle{
 
 
 
-//#Preview {
-//    GNButton({})
-//}
+#Preview {
+    GNButton("Test", {})
+}

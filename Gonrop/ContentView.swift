@@ -25,9 +25,9 @@ struct ContentView: View {
                 Spacer()
                 Rectangle()
                     .foregroundColor(Color.orange)
-                    .frame(width: 1200, height: 600)
+                    .frame(width: 1200, height: 650)
                     .clipShape(UnevenRoundedRectangle(topLeadingRadius: 50))
-                    .mask(alphaMaskBottom(width:1200, height:600))
+                    .mask(alphaMaskBottom(width:1200, height:650))
             }
             
             .padding()
@@ -52,7 +52,7 @@ struct ContentView: View {
                     calView()
                 }
                 
-                Spacer(minLength: 320)
+                Spacer(minLength: 220)
 
                 
                 buttonView()
@@ -140,86 +140,91 @@ struct calView: View {
 
 struct buttonView: View {
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    @State var tmpTimeRem = 214
     var body: some View{
         Grid{
             
             GridRow{
-                GNToggle("Unfinshed Toggle!", {}).frame(width: 400)
+                GNToggle("Beta Toggle", {}).frame(width: 300)
                     .padding(10)
                     .foregroundStyle(.black)
                     .background(Color.orange)
                     .clipShape(.capsule)
-                
-                timerView()//.onReceive(<#T##publisher: Publisher##Publisher#>, perform: <#T##(Publisher.Output) -> Void#>)
-                //.onReceive(timer){$timeRemaining -= 1}
-                //.onReceive(timer)
-                //                .onReceive(timer){
-                //                    body
-                //                }
+                //Spacer()
+                timerView(timeRemaining: $tmpTimeRem).onReceive(timer){_ in
+                    $tmpTimeRem.wrappedValue -= 1
+                }//
             }
+            GridRow{
+                Spacer()
+                GNButton("Blu Task",  { })
+            }
+            GridRow{
+                Spacer()
+                GNButton("Grn Task",  { })
+            }
+//            GridRow{
+//                Spacer()
+//                GNButton("Yel Finished",  { })
+//            }
             
             GridRow {
-                ForEach(0..<2) { num in GNButton("This is \(num) Button!", {}) }
+                ForEach(0..<2) { num in GNButton("This is \(num) Button", {}) }
             }
-            .gridColumnAlignment(.leading)
+            //.gridColumnAlignment(.leading)
             .padding(.vertical, 10)
             
             GridRow{
-                
-                //            Button(action: {}) {
-                //                Text("Hello, Bttn!")
-                //                    .font(Font.system(size: 90))
-                //            }
-                //            .padding(10)
-                //            .foregroundStyle(.black)
-                //            .background(Color.orange)
-                //            .clipShape(.capsule)
+
             }
             
-            GridRow{
-                Button(action: {}) {
-                    Text("Hello, Button!")
-                        .font(Font.system(size: 40))
-                }.frame(width: 400)
-                    .padding(10)
-                    .foregroundStyle(.black)
-                    .background(Color.orange)
-                    .clipShape(.capsule)
-            }.gridColumnAlignment(.leading)
-                .padding(.vertical, 10)
+//            GridRow{
+//                Button(action: {}) {
+//                    Text("Hello, Button!")
+//                        .font(Font.system(size: 40))
+//                }.frame(width: 400)
+//                    .padding(10)
+//                    .foregroundStyle(.black)
+//                    .background(Color.orange)
+//                    .clipShape(.capsule)
+//            }
+//                .padding(.vertical, 10)
             
-        }  //end of grid
+        } //end of grid
         
+    
+    }
+    
+}
+
+extension Int {
+    func hmsFormatted() -> String {
+        let hours = self / 3600
+        let minutes = (self % 3600) / 60
+        let seconds = (self % 3600) % 60
+        return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
     }
 }
 
 struct timerView: View {
     
-    var timeRemaining = 240
+    @Binding var timeRemaining: Int
 //    public func goDown() -> Void{
 //        $timeRemaining -= 1
 //    }
     
     var body: some View{
-        //Date.init(timeIntervalSinceNow: 240)
+
         
-        // public func hmsFrom() -> (Int, Int, Int) {
-        //    return (self / 3600, (self % 3600) / 60, (self % 3600) % 60)
-        
-        Text("\((timeRemaining % 3600) / 60): \((timeRemaining % 3600) % 60)")
-        
-        //    Text(timeRemaining.formatted(Date.FormatStyle()
-        //        .day(.omitted)
-        //        .month(.omitted)
-        //        .year(.omitted)
-        //        .hour(.twoDigits(amPM: .omitted)).second()
-        //    ))
+        Text(timeRemaining.hmsFormatted())
+
             .font(Font.system(size: 60))
-        // .colorInvert() format: .dateTime.hour(.twoDigits(amPM: .omitted)).minute().second()
             .monospaced()
             .foregroundColor(.orange)
+            
+            
     }
-    }
+}
 
 struct clockView: View {
     var body: some View{
