@@ -1,0 +1,8 @@
+## User settings
+xcuserdata/
+*.xcodeproj
+
+.build/
+*.xcworkspace
+.DS_Store
+*.xcodeproj/
