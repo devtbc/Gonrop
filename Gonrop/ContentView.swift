@@ -88,18 +88,18 @@ enum EachWeekDay: String, CaseIterable{
 }
 
 
-struct SometestView: View {
-    var body: some View {
-        
-        ForEach(EachWeekDay.allCases, id: \.rawValue) { item in
-            Rectangle()
-                            .frame(width: 50, height: 100, alignment: .bottom)
-                            .foregroundColor(Color.green)
-                            .clipShape(UnevenRoundedRectangle(topLeadingRadius: 10, topTrailingRadius: 10))
-                            .overlay(Text(item.rawValue))
-        }
-    }
-}
+//struct SometestView: View {
+//    var body: some View {
+//        
+//        ForEach(EachWeekDay.allCases, id: \.rawValue) { item in
+//            Rectangle()
+//                            .frame(width: 50, height: 100, alignment: .bottom)
+//                            .foregroundColor(Color.green)
+//                            .clipShape(UnevenRoundedRectangle(topLeadingRadius: 10, topTrailingRadius: 10))
+//                            .overlay(Text(item.rawValue))
+//        }
+//    }
+//}
 func todayString() -> String {
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "EEE"
@@ -139,8 +139,16 @@ struct calView: View {
 }
 
 struct buttonView: View {
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    @State var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State var tmpTimeRem = 214
+    func stopTimer() {
+            self.timer.upstream.connect().cancel()
+        }
+        
+        func startTimer() {
+            self.timer = Timer.publish(every: 0.01, on: .main, in: .common).autoconnect()
+        }
+    
     var body: some View{
         Grid{
             
@@ -156,12 +164,12 @@ struct buttonView: View {
                 }//
             }
             GridRow{
-                Spacer()
                 GNButton("Blu Task",  { })
+                GNButton("ST",  { startTimer()})
             }
             GridRow{
-                Spacer()
-                GNButton("Grn Task",  { })
+                GNButton("Blu Task",  { })
+                GNButton("AT",  { tmpTimeRem += 60})
             }
 //            GridRow{
 //                Spacer()
@@ -190,6 +198,9 @@ struct buttonView: View {
 //            }
 //                .padding(.vertical, 10)
             
+        }.onAppear() {
+            // no need for UI updates at startup
+            self.stopTimer()
         } //end of grid
         
     

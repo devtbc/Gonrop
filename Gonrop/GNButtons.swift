@@ -58,11 +58,11 @@ func GNToggle(_ label: String, _ action: @escaping() -> Void) -> some View {
 struct GNButtonStyle: ButtonStyle{
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(  .system( size: 38)
+            .font( .system( size: 38)
                 .weight(.semibold)
-                    .monospaced()
-                    )
-            .frame(width: 300)
+                .monospaced()
+            )
+            .frame(width: 300, alignment: .topLeading)
             .padding(10)
             .foregroundStyle(.black)
             .background(Color.orange)

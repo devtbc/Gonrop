@@ -45,16 +45,6 @@
 			path = Gonrop;
 			sourceTree = "<group>";
 		};
-		90034DA12D47C4DE000FBB4E /* GonropTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = GonropTests;
-			sourceTree = "<group>";
-		};
-		90034DAB2D47C4DE000FBB4E /* GonropUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = GonropUITests;
-			sourceTree = "<group>";
-		};
 		900F85B92D65213A00BDA482 /* media */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -93,10 +83,8 @@
 		90034D852D47C4DC000FBB4E = {
 			isa = PBXGroup;
 			children = (
-				900F85B92D65213A00BDA482 /* media */,
 				90034D902D47C4DC000FBB4E /* Gonrop */,
-				90034DA12D47C4DE000FBB4E /* GonropTests */,
-				90034DAB2D47C4DE000FBB4E /* GonropUITests */,
+				900F85B92D65213A00BDA482 /* media */,
 				90034D8F2D47C4DC000FBB4E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -150,9 +138,6 @@
 			dependencies = (
 				90034DA02D47C4DE000FBB4E /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				90034DA12D47C4DE000FBB4E /* GonropTests */,
-			);
 			name = GonropTests;
 			packageProductDependencies = (
 			);
@@ -172,9 +157,6 @@
 			);
 			dependencies = (
 				90034DAA2D47C4DE000FBB4E /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				90034DAB2D47C4DE000FBB4E /* GonropUITests */,
 			);
 			name = GonropUITests;
 			packageProductDependencies = (
