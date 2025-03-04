@@ -88,18 +88,7 @@ enum EachWeekDay: String, CaseIterable{
 }
 
 
-//struct SometestView: View {
-//    var body: some View {
-//        
-//        ForEach(EachWeekDay.allCases, id: \.rawValue) { item in
-//            Rectangle()
-//                            .frame(width: 50, height: 100, alignment: .bottom)
-//                            .foregroundColor(Color.green)
-//                            .clipShape(UnevenRoundedRectangle(topLeadingRadius: 10, topTrailingRadius: 10))
-//                            .overlay(Text(item.rawValue))
-//        }
-//    }
-//}
+
 func todayString() -> String {
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "EEE"
@@ -139,64 +128,49 @@ struct calView: View {
 }
 
 struct buttonView: View {
+    //timeRemaining = savedTimeRemaining -[currentTime timeIntervalSinceDate:savedDate];
     @State var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    @State var tmpTimeRem = 214
+    @State var tmpTimeRem = 254
     func stopTimer() {
             self.timer.upstream.connect().cancel()
         }
         
         func startTimer() {
-            self.timer = Timer.publish(every: 0.01, on: .main, in: .common).autoconnect()
+            self.timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
         }
     
     var body: some View{
         Grid{
             
             GridRow{
-                GNToggle("Beta Toggle", {}).frame(width: 300)
-                    .padding(10)
-                    .foregroundStyle(.black)
-                    .background(Color.orange)
-                    .clipShape(.capsule)
-                //Spacer()
-                timerView(timeRemaining: $tmpTimeRem).onReceive(timer){_ in
-                    $tmpTimeRem.wrappedValue -= 1
-                }//
+                Spacer()
+                timerView(timeRemaining: $tmpTimeRem)
+                    .onReceive(timer){_ in
+                        $tmpTimeRem.wrappedValue -= 1
+                        }
             }
             GridRow{
                 GNButton("Blu Task",  { })
                 GNButton("ST",  { startTimer()})
             }
             GridRow{
-                GNButton("Blu Task",  { })
-                GNButton("AT",  { tmpTimeRem += 60})
+                GNButton("Grn Task",  { })
+                GNButton("AT",  { stopTimer(); tmpTimeRem += 60})
             }
 //            GridRow{
 //                Spacer()
 //                GNButton("Yel Finished",  { })
 //            }
             
-            GridRow {
-                ForEach(0..<2) { num in GNButton("This is \(num) Button", {}) }
-            }
-            //.gridColumnAlignment(.leading)
-            .padding(.vertical, 10)
+//            GridRow {
+//                ForEach(0..<2) { num in GNButton("This is \(num) Button", {}) }
+//            }
+//            //.gridColumnAlignment(.leading)
+//            .padding(.vertical, 10)
             
             GridRow{
 
             }
-            
-//            GridRow{
-//                Button(action: {}) {
-//                    Text("Hello, Button!")
-//                        .font(Font.system(size: 40))
-//                }.frame(width: 400)
-//                    .padding(10)
-//                    .foregroundStyle(.black)
-//                    .background(Color.orange)
-//                    .clipShape(.capsule)
-//            }
-//                .padding(.vertical, 10)
             
         }.onAppear() {
             // no need for UI updates at startup
@@ -210,30 +184,35 @@ struct buttonView: View {
 
 extension Int {
     func hmsFormatted() -> String {
-        let hours = self / 3600
-        let minutes = (self % 3600) / 60
-        let seconds = (self % 3600) % 60
+        //This is going to be abs()
+        
+        
+        
+        let hours = abs(self) / 3600
+        let minutes = (abs(self) % 3600) / 60
+        let seconds = (abs(self) % 3600) % 60//show the abs value but - in front
         return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
     }
 }
 
 struct timerView: View {
-    
+    @State var tmpbo = false
     @Binding var timeRemaining: Int
-//    public func goDown() -> Void{
-//        $timeRemaining -= 1
-//    }
-    
+
     var body: some View{
 
-        
-        Text(timeRemaining.hmsFormatted())
-
-            .font(Font.system(size: 60))
-            .monospaced()
-            .foregroundColor(.orange)
+        HStack{
+           
+            scaleBar(showAni: $tmpbo)
+                .onChange(of: timeRemaining){tmpbo.toggle()}
+                .scaleEffect(0.6, anchor: .center)
             
+            Text(timeRemaining.hmsFormatted())
+                .font(Font.system(size: 60))
+                .monospaced()
+                .foregroundColor(.orange)
             
+        }
     }
 }
 
