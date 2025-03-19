@@ -11,59 +11,63 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         
-        
-        
-        ZStack{
+        GeometryReader { geo in
             
-            VStack {
+            ZStack{
                 
-                Rectangle()
-                    .foregroundColor(Color.orange)
-                    .frame(width: 1200, height: 300)
-                    .clipShape(UnevenRoundedRectangle(bottomLeadingRadius: 50))
-                    .mask(alphaMaskTop(width:1200, height:300))
-                Spacer()
-                Rectangle()
-                    .foregroundColor(Color.orange)
-                    .frame(width: 1200, height: 650)
-                    .clipShape(UnevenRoundedRectangle(topLeadingRadius: 50))
-                    .mask(alphaMaskBottom(width:1200, height:650))
-            }
-            
-            .padding()
-            #if os(iOS)
-            .statusBar(hidden: true)
-            #endif
-            .containerRelativeFrame([.horizontal, .vertical])
-
-            
-            
-            .background(Color.black)
-          
-   
-            
-            
-            VStack{
-                Spacer()
-                HStack{
+                VStack {
+                    
+                   
+                    Rectangle()
+                        .foregroundColor(Color.orange)
+                        .frame(width: geo.size.width, height: geo.size.height*0.25)
+                        .clipShape(UnevenRoundedRectangle(bottomLeadingRadius: 50))
+                        .mask(alphaMaskTop(width:CGFloat(geo.size.width), height:CGFloat(geo.size.height)))
                     Spacer()
-                    clockView()
-                    Spacer()
-                    calView()
+                    //Text("W:\(Int(geo.size.width)) --- H:\(Int(geo.size.height))")
+                        .colorInvert()
+                    Rectangle()
+                        .foregroundColor(Color.orange)
+                        .frame(width: geo.size.width, height: geo.size.height*3/4)//650
+                        .clipShape(UnevenRoundedRectangle(topLeadingRadius: 50))
+                        .mask(alphaMaskBottom(width:CGFloat(geo.size.width), height:CGFloat(geo.size.height)))
                 }
                 
-                Spacer(minLength: 220)
-
+                .padding()
+#if os(iOS)
+                .statusBar(hidden: true)
+#endif
+                .containerRelativeFrame([.horizontal, .vertical])
                 
-                buttonView()
-                Spacer()
-              
                 
-            }//end of HStack
-            .frame(alignment: .bottom)//
-            
+                
+                .background(Color.black)
+                
+                
+                
+                
+                VStack{
+                    Spacer()
+                    HStack{
+                        Spacer()
+                        clockView()
+                        Spacer()
+                        calView()
+                    }
+                    
+                    Spacer(minLength: 220)
+                    
+                    
+                    buttonView()
+                    Spacer()
+                    
+                    
+                }//end of HStack
+                .frame(alignment: .bottom)//
+                
+            }
         }
-    }
+    }//end of geo
         
 }
 
@@ -130,7 +134,7 @@ struct calView: View {
 struct buttonView: View {
     //timeRemaining = savedTimeRemaining -[currentTime timeIntervalSinceDate:savedDate];
     @State var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    @State var tmpTimeRem = 254
+    @State var tmpTimeRem = 934
     func stopTimer() {
             self.timer.upstream.connect().cancel()
         }
@@ -155,7 +159,7 @@ struct buttonView: View {
             }
             GridRow{
                 GNButton("Grn Task",  { })
-                GNButton("AT",  { stopTimer(); tmpTimeRem += 60})
+                GNButton("AT",  { stopTimer(); tmpTimeRem += 240})
             }
 //            GridRow{
 //                Spacer()
@@ -202,11 +206,16 @@ struct timerView: View {
     var body: some View{
 
         HStack{
-           
-            scaleBar(showAni: $tmpbo)
-                .onChange(of: timeRemaining){tmpbo.toggle()}
-                .scaleEffect(0.6, anchor: .center)
-            
+            if (timeRemaining < 0 ) {
+                scaleBarUp(showAni: $tmpbo)
+                    .onChange(of: timeRemaining){tmpbo.toggle()}
+                    .scaleEffect(0.6, anchor: .center)
+            }
+            else {
+                scaleBar(showAni: $tmpbo)
+                    .onChange(of: timeRemaining){tmpbo.toggle()}
+                    .scaleEffect(0.6, anchor: .center)
+            }
             Text(timeRemaining.hmsFormatted())
                 .font(Font.system(size: 60))
                 .monospaced()
@@ -232,13 +241,13 @@ struct alphaMaskTop: View {
         VStack(spacing: -height ){
             Rectangle()
                 .foregroundColor(.white)
-                .frame(width: width, height: height)
+                .frame(width: width, height: height/4)
             
             Rectangle()
                 .foregroundColor(.black)
                 .frame(width: width, height: height)
                 .clipShape(.rect(cornerRadius: 30))
-                .offset(x: 100, y:-30)
+                .offset(x: width/10, y:-height/30)
             
             
             
@@ -263,9 +272,9 @@ struct alphaMaskBottom :View {
             Rectangle()
             // .fill()
                 .foregroundColor(.black)
-                .frame(width: width, height: height)
+                .frame(width: width, height: height*3/4)
                 .clipShape(.rect(cornerRadius: 30))
-                .offset(x: 100, y:30)
+                .offset(x: width/10, y:height/30)
             // }
             
         }

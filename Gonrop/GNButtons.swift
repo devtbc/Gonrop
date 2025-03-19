@@ -153,12 +153,7 @@ struct scaleBar: View {
    // var size: CGFloat {showAni ? 0.0 : 1.0}
     
     @State var size: CGFloat = 1.0
-    var repeatingAnimation: Animation {
-        Animation
-            
-            .linear(duration: 0.5) //.easeIn, .easyOut, .linear, etc...
-            .repeatForever()
-    }
+
     
     
     
@@ -182,18 +177,48 @@ struct scaleBar: View {
                 withAnimation(.linear(duration: 0.9)){size = 0.00} completion: {
                     size = 1.0
                 }
-                
             }
     }
-    
-    
-    
-    
-    
-    func scaleItDown() {}
 }
 
-
+struct scaleBarUp: View {
+    //This is a duplicate that should be a different state for scaleBar
+    enum Direction{
+        case up, down
+    }
+    @State private var scaleDirection = Direction.down
+    
+    @Binding var showAni: Bool
+    //mayve make it observable and then it will animate on apper
+   // var size: CGFloat {showAni ? 0.0 : 1.0}
+    
+    @State var size: CGFloat = 0.0
+    
+    
+    
+    var body: some View{
+        
+//        switch scaleDirection {
+//        case .up:
+//            size = 1.0
+//        case .down:
+//            size = 0.0
+//        default:
+//            {}
+//        }
+    
+        
+        Rectangle()
+            .frame(width: 25, height: 100)
+            .foregroundStyle(.orange)
+            .scaleEffect(x: 1, y: size, anchor: .bottom)
+            .onChange(of: showAni){
+                withAnimation(.linear(duration: 0.9)){size = 1.00} completion: {
+                    size = 0.0
+                }
+            }
+    }
+}
 
 
 
