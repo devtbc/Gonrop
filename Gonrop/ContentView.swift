@@ -37,12 +37,9 @@ struct ContentView: View {
 #if os(iOS)
                 .statusBar(hidden: true)
 #endif
-                .containerRelativeFrame([.horizontal, .vertical])
-                
-                
-                
+
                 .background(Color.black)
-                
+                .containerRelativeFrame([.horizontal])
                 
                 
                 
@@ -55,7 +52,7 @@ struct ContentView: View {
                         calView()
                     }
                     
-                    Spacer(minLength: 220)
+                    Spacer(minLength: geo.size.height/6)
                     
                     
                     buttonView()
@@ -134,14 +131,15 @@ struct calView: View {
 struct buttonView: View {
     //timeRemaining = savedTimeRemaining -[currentTime timeIntervalSinceDate:savedDate];
     @State var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    //@Binding var timer: AnyPublisher<Date,Never>
     @State var tmpTimeRem = 934
     func stopTimer() {
             self.timer.upstream.connect().cancel()
         }
         
-        func startTimer() {
-            self.timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-        }
+    func startTimer() {
+        self.timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    }
     
     var body: some View{
         Grid{
@@ -203,8 +201,15 @@ struct timerView: View {
     @State var tmpbo = false
     @Binding var timeRemaining: Int
 
+    var startTime = Date.now
+    var duration: Double = 2
+    
+    
+    
     var body: some View{
 
+        var timerrrrange: ClosedRange<Date> = startTime...Date(timeInterval: (duration * 60), since: startTime)
+        
         HStack{
             if (timeRemaining < 0 ) {
                 scaleBarUp(showAni: $tmpbo)
@@ -216,7 +221,14 @@ struct timerView: View {
                     .onChange(of: timeRemaining){tmpbo.toggle()}
                     .scaleEffect(0.6, anchor: .center)
             }
-            Text(timeRemaining.hmsFormatted())
+            //Text(timeRemaining.hmsFormatted()) //Text(event.startDate, style: .timer)
+            Text(
+                timerInterval: timerrrrange,
+                //timerInterval: startTime...Date(timeInterval: (duration * 60), since: startTime),
+                //pauseTime: Date(timeInterval: (1 * 60), since: startTime),
+                countsDown: false
+                
+            )
                 .font(Font.system(size: 60))
                 .monospaced()
                 .foregroundColor(.orange)
@@ -226,11 +238,18 @@ struct timerView: View {
 }
 
 struct clockView: View {
+    @State var timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
+    @State var notQuiteNow: Date = Date.now
     var body: some View{
-        Text(Date.now, format: .dateTime.hour(.twoDigits(amPM: .omitted)).minute().second())
+        
+        //Text(Date.now, style: .time)
+        Text(notQuiteNow, format: .dateTime.hour(.twoDigits(amPM: .omitted)).minute().second())
             .font(Font.system(size: 90))
             .colorInvert()
             .monospaced()
+            .onReceive(timer) { _ in
+                notQuiteNow = Date.now
+            }
     }
 }
 
