@@ -9,6 +9,19 @@ import SwiftUI
 //import GNButtons
 
 struct ContentView: View {
+    
+    //timeRemaining = savedTimeRemaining -[currentTime timeIntervalSinceDate:savedDate];
+    @State var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    //@Binding var timer: AnyPublisher<Date,Never>
+    @State var tmpTimeRem = 42//934
+    func stopTimer() {
+            self.timer.upstream.connect().cancel()
+        }
+        
+    func startTimer() {
+        self.timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    }
+    
     var body: some View {
         
         GeometryReader { geo in
@@ -31,7 +44,7 @@ struct ContentView: View {
                         .frame(width: geo.size.width, height: geo.size.height*3/4)//650
                         .clipShape(UnevenRoundedRectangle(topLeadingRadius: 50))
                         .mask(alphaMaskBottom(width:CGFloat(geo.size.width), height:CGFloat(geo.size.height)))
-                }
+                } //VStack of background and masks
                 
                 .padding()
 #if os(iOS)
@@ -44,29 +57,34 @@ struct ContentView: View {
                 
                 
                 VStack{
-                    Spacer()
-                    HStack{
-                        Spacer()
+                    HStack(){
                         clockView()
                         Spacer()
                         calView()
                     }
-                    
+                    .offset(CGSize(width: geo.size.width/8, height: geo.size.height/16))
+                    .safeAreaPadding(.trailing, geo.size.width/6)
                     Spacer(minLength: geo.size.height/6)
+                }
                     
                     
+                VStack(){
+                    TimelineView(.periodic(from: .now, by: 1.0)) { context in
+                        displayView(timer: context.date, tmpTimeRem: self.$tmpTimeRem)
+                    }
                     buttonView()
-                    Spacer()
                     
-                    
-                }//end of HStack
-                .frame(alignment: .bottom)//
+                } //end of VStack
+                .offset(CGSize(width: geo.size.width*0.1, height: geo.size.height*0.3))
                 
-            }
-        }
-    }//end of geo
-        
-}
+                
+                
+                
+            } ///ZStack of overlaping background and content stacks
+            ///currently at {V V-top V-Bottom}
+        } //end of geo
+    }//end of body
+} //end of ContentView
 
 
 
@@ -128,11 +146,48 @@ struct calView: View {
     }
 }
 
+
+
+struct displayView: View {
+   // @Binding var timeRemaining: Int
+    //timeRemaining = savedTimeRemaining -[currentTime timeIntervalSinceDate:savedDate];
+    var timer: Date
+    //@Binding var timer: AnyPublisher<Date,Never>
+    @Binding var tmpTimeRem: Int//934
+    
+    var body: some View {
+        //timeRemaining = savedTimeRemaining -[currentTime timeIntervalSinceDate:savedDate];
+        //@State var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+        //@Binding var timer: AnyPublisher<Date,Never>
+        //@State var tmpTimeRem = 42//934
+//        func stopTimer() {
+//                self.timer.upstream.connect().cancel()
+//            }
+//            
+//        func startTimer() {
+//            self.timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+//        }
+        
+        
+        HStack(alignment: .top){
+            GaugeDemo(progress: 0.7)
+                .frame(width: 200, height: 200)
+            Spacer()
+            timerView(timeRemaining: $tmpTimeRem)
+//                .onReceive(timer){_ in
+//                    $tmpTimeRem.wrappedValue -= 1
+//                    }
+        }
+    }
+}
+//I think it's fun, this needing to work backwords and remember were your brain was
+////TODO: make an alart ir confrim/reject buttons and specific area for them. Btm right?
+
 struct buttonView: View {
     //timeRemaining = savedTimeRemaining -[currentTime timeIntervalSinceDate:savedDate];
     @State var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     //@Binding var timer: AnyPublisher<Date,Never>
-    @State var tmpTimeRem = 934
+    @State var tmpTimeRem = 42//934
     func stopTimer() {
             self.timer.upstream.connect().cancel()
         }
@@ -145,12 +200,9 @@ struct buttonView: View {
         Grid{
             
             GridRow{
-                Spacer()
-                timerView(timeRemaining: $tmpTimeRem)
-                    .onReceive(timer){_ in
-                        $tmpTimeRem.wrappedValue -= 1
-                        }
-            }
+                
+            }.border(.red) // or
+                .background(.red.opacity(0.2))
             GridRow{
                 GNButton("Blu Task",  { })
                 GNButton("ST",  { startTimer()})

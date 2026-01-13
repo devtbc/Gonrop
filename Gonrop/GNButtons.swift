@@ -221,8 +221,87 @@ struct scaleBarUp: View {
 }
 
 
+struct RadialGauge: View {
+    var value: Double // 0.0 to 1.0
+    var lineWidth: CGFloat = 20
+    var backgroundColor: Color = Color(.systemGray5)
+    var foregroundColor: Color = .blue
+    
+    private let startAngle: Angle = .degrees(135)
+    private let endAngle: Angle = .degrees(405) // 135 + 270
+    
+    var body: some View {
+        Canvas { context, size in
+            let rect = CGRect(origin: .zero, size: size).insetBy(dx: lineWidth / 2, dy: lineWidth / 2)
+            let center = CGPoint(x: rect.midX, y: rect.midY)
+            let radius = min(rect.width, rect.height) / 2
+            
+            // Background arc
+            var backgroundPath = Path()
+            backgroundPath.addArc(
+                center: center,
+                radius: radius,
+                startAngle: startAngle,
+                endAngle: endAngle,
+                clockwise: false
+            )
+            
+            context.stroke(
+                backgroundPath,
+                with: .color(backgroundColor),
+                style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+            )
+            
+            // Foreground arc (value)
+            let valueAngle = startAngle + .degrees(270 * value)
+            var valuePath = Path()
+            valuePath.addArc(
+                center: center,
+                radius: radius,
+                startAngle: startAngle,
+                endAngle: valueAngle,
+                clockwise: false
+            )
+            
+            context.stroke(
+                valuePath,
+                with: .color(foregroundColor),
+                style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+            )
+        }
+        .aspectRatio(1, contentMode: .fit)
+    }
+}
+
+// Usage example with animation
+struct GaugeDemo: View {
+    @State var progress: Double // 0.0 to 1.0//Double = 0.0
+    //var : Int
+    //@Binding var timeRemaining: Int
+    var body: some View {
+        VStack(spacing: 40) {
+            RadialGauge(
+                value: progress,
+                lineWidth: 24,
+                backgroundColor: Color(.systemGray4),
+                foregroundColor: .orange
+            )
+           // .frame(width: 200, height: 200)
+            .overlay {
+                Text("\(Int(progress * 100))%")
+                    .font(.system(size: 36, weight: .semibold, design: .rounded))
+                    .contentTransition(.numericText())
+                    .colorInvert()
+                    .offset(y: 20) 
+            }
+            
+            //Slider(value: $progress, in: 0...1)
+                //.padding(.horizontal, 40)
+        }
+        .animation(.smooth, value: progress)
+    }
+}
 
 #Preview {
-    //scaleBar()
-    
+    //GaugeDemo()
 }
