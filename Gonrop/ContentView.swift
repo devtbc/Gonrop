@@ -25,7 +25,8 @@ struct ContentView: View {
     var body: some View {
         
         GeometryReader { geo in
-            
+        //place for geoperportens?
+           let quarterHeight = geo.size.height*0.25
             ZStack{
                 
                 VStack {
@@ -33,7 +34,7 @@ struct ContentView: View {
                    
                     Rectangle()
                         .foregroundColor(Color.orange)
-                        .frame(width: geo.size.width, height: geo.size.height*0.25)
+                        .frame(width: geo.size.width, height: quarterHeight)
                         .clipShape(UnevenRoundedRectangle(bottomLeadingRadius: 50))
                         .mask(alphaMaskTop(width:CGFloat(geo.size.width), height:CGFloat(geo.size.height)))
                     Spacer()
@@ -57,31 +58,33 @@ struct ContentView: View {
                 
                 
                 VStack{
-                    HStack(){
+                    HStack{
                         clockView()
                         Spacer()
                         calView()
                     }
                     .offset(CGSize(width: geo.size.width/8, height: geo.size.height/16))
                     .safeAreaPadding(.trailing, geo.size.width/6)
-                    Spacer(minLength: geo.size.height/6)
+                    Spacer()
                 }
                     
-                    
+                    //ideas for positing? btn view should not be dependnet on above/bellow
                 VStack(){
+                    Spacer()
+                    Spacer()
                     TimelineView(.periodic(from: .now, by: 1.0)) { context in
                         displayView(timer: context.date, tmpTimeRem: self.$tmpTimeRem)
                     }
                     buttonView()
-                    
+                    Spacer()
                 } //end of VStack
-                .offset(CGSize(width: geo.size.width*0.1, height: geo.size.height*0.3))
+                .offset(CGSize(width: -geo.size.width*0.06, height: geo.size.height*0.1))
                 
                 
                 
                 
             } ///ZStack of overlaping background and content stacks
-            ///currently at {V V-top V-Bottom}
+            ///currently at {V-back V-top V-Bottom}
         } //end of geo
     }//end of body
 } //end of ContentView
@@ -168,11 +171,13 @@ struct displayView: View {
 //            self.timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 //        }
         
-        
-        HStack(alignment: .top){
-            GaugeDemo(progress: 0.7)
+        var num = Int(timer.timeIntervalSinceReferenceDate)%100
+        ////Calendar.current.dateComponents([.minute], from: Date()).minute!
+        HStack(spacing: 50){
+            Text(num.description).colorInvert()
+            //num.
+            GaugeDemo(progress: Double(Int(timer.timeIntervalSinceReferenceDate)%100)/100)
                 .frame(width: 200, height: 200)
-            Spacer()
             timerView(timeRemaining: $tmpTimeRem)
 //                .onReceive(timer){_ in
 //                    $tmpTimeRem.wrappedValue -= 1
@@ -182,6 +187,12 @@ struct displayView: View {
 }
 //I think it's fun, this needing to work backwords and remember were your brain was
 ////TODO: make an alart ir confrim/reject buttons and specific area for them. Btm right?
+
+//struct confirmRejectView: View {
+//    var body: some View {
+//        GNButton(<#T##label: String##String#>, <#T##action: () -> Void##() -> Void#>)
+//    }
+//}
 
 struct buttonView: View {
     //timeRemaining = savedTimeRemaining -[currentTime timeIntervalSinceDate:savedDate];

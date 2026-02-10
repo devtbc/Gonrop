@@ -303,5 +303,5 @@ struct GaugeDemo: View {
 }
 
 #Preview {
-    //GaugeDemo()
+    ContentView()
 }
