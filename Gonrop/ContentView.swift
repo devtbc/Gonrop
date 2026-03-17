@@ -6,21 +6,15 @@
 //
 
 import SwiftUI
+import Combine
+
 //import GNButtons
 
 struct ContentView: View {
-    
+
     //timeRemaining = savedTimeRemaining -[currentTime timeIntervalSinceDate:savedDate];
-    @State var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    //@Binding var timer: AnyPublisher<Date,Never>
+    @State var viewModel = ViewModel()
     @State var tmpTimeRem = 42//934
-    func stopTimer() {
-            self.timer.upstream.connect().cancel()
-        }
-        
-    func startTimer() {
-        self.timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    }
     
     var body: some View {
         
@@ -46,20 +40,18 @@ struct ContentView: View {
                         .clipShape(UnevenRoundedRectangle(topLeadingRadius: 50))
                         .mask(alphaMaskBottom(width:CGFloat(geo.size.width), height:CGFloat(geo.size.height)))
                 } //VStack of background and masks
-                
                 .padding()
+                .background(Color.black)
+                .containerRelativeFrame([.horizontal])
 #if os(iOS)
                 .statusBar(hidden: true)
 #endif
-
-                .background(Color.black)
-                .containerRelativeFrame([.horizontal])
                 
                 
-                
+                //Content on background in the Zstack
                 VStack{
                     HStack{
-                        clockView()
+                        clockViewBetter(timer: viewModel.timer)
                         Spacer()
                         calView()
                     }
@@ -72,10 +64,29 @@ struct ContentView: View {
                 VStack(){
                     Spacer()
                     Spacer()
-                    TimelineView(.periodic(from: .now, by: 1.0)) { context in
-                        displayView(timer: context.date, tmpTimeRem: self.$tmpTimeRem)
+                    
+                    //displayView(timer: viewModel.timer, tmpTimeRem: $viewModel.tmpTimeRem, viewModel: $viewModel)
+                    HStack(spacing: 50){
+                        
+                        GaugeDemo(progress: Double(0.5))
+                            .frame(width: 200, height: 200)
+                            .onReceive(viewModel.timer) { _ in
+                                
+                            }
+                        VStack{
+                            timerViewBetter(TimerVM: $viewModel.timerVM1)
+                            timerView(timeRemaining: $tmpTimeRem)
+                                .onReceive(viewModel.timer) { _ in
+                                    if self.tmpTimeRem > 0 {
+                                        tmpTimeRem -= 1
+                                    }
+                                }
+                        }
+                        
+                        
                     }
-                    buttonView()
+                    
+                    buttonView( tmpTimeRem: $viewModel.tmpTimeRem)
                     Spacer()
                 } //end of VStack
                 .offset(CGSize(width: -geo.size.width*0.06, height: geo.size.height*0.1))
@@ -154,34 +165,38 @@ struct calView: View {
 struct displayView: View {
    // @Binding var timeRemaining: Int
     //timeRemaining = savedTimeRemaining -[currentTime timeIntervalSinceDate:savedDate];
-    var timer: Date
+    let timer: Publishers.Autoconnect<Timer.TimerPublisher>
     //@Binding var timer: AnyPublisher<Date,Never>
     @Binding var tmpTimeRem: Int//934
+    @State var clock = ClockService()
+    @Binding var viewModel: ViewModel
     
     var body: some View {
-        //timeRemaining = savedTimeRemaining -[currentTime timeIntervalSinceDate:savedDate];
-        //@State var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-        //@Binding var timer: AnyPublisher<Date,Never>
-        //@State var tmpTimeRem = 42//934
-//        func stopTimer() {
-//                self.timer.upstream.connect().cancel()
-//            }
-//            
-//        func startTimer() {
-//            self.timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-//        }
+
         
-        var num = Int(timer.timeIntervalSinceReferenceDate)%100
+        //@Environment(ClockService.self) var clock
+        
         ////Calendar.current.dateComponents([.minute], from: Date()).minute!
         HStack(spacing: 50){
-            Text(num.description).colorInvert()
-            //num.
-            GaugeDemo(progress: Double(Int(timer.timeIntervalSinceReferenceDate)%100)/100)
+            Text(clock.now.formatted(.dateTime.hour().minute().second()))
+                .monospacedDigit()
+                .colorInvert()
+            GaugeDemo(progress: Double(0.5))
                 .frame(width: 200, height: 200)
-            timerView(timeRemaining: $tmpTimeRem)
-//                .onReceive(timer){_ in
-//                    $tmpTimeRem.wrappedValue -= 1
-//                    }
+                .onReceive(timer) { _ in
+                    
+                }
+            VStack{
+                timerViewBetter(TimerVM: $viewModel.timerVM1)
+                timerView(timeRemaining: $tmpTimeRem)
+                    .onReceive(timer) { _ in
+                        if self.tmpTimeRem > 0 {
+                            tmpTimeRem -= 1
+                        }
+                    }
+            }
+          
+
         }
     }
 }
@@ -195,17 +210,7 @@ struct displayView: View {
 //}
 
 struct buttonView: View {
-    //timeRemaining = savedTimeRemaining -[currentTime timeIntervalSinceDate:savedDate];
-    @State var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    //@Binding var timer: AnyPublisher<Date,Never>
-    @State var tmpTimeRem = 42//934
-    func stopTimer() {
-            self.timer.upstream.connect().cancel()
-        }
-        
-    func startTimer() {
-        self.timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    }
+    @Binding var tmpTimeRem: Int
     
     var body: some View{
         Grid{
@@ -216,11 +221,11 @@ struct buttonView: View {
                 .background(.red.opacity(0.2))
             GridRow{
                 GNButton("Blu Task",  { })
-                GNButton("ST",  { startTimer()})
+                GNButton("ST",  { })
             }
             GridRow{
                 GNButton("Grn Task",  { })
-                GNButton("AT",  { stopTimer(); tmpTimeRem += 240})
+                GNButton("AT",  { tmpTimeRem += 240 })
             }
 //            GridRow{
 //                Spacer()
@@ -239,7 +244,7 @@ struct buttonView: View {
             
         }.onAppear() {
             // no need for UI updates at startup
-            self.stopTimer()
+            //self.stopTimer()
         } //end of grid
         
     
@@ -260,6 +265,33 @@ extension Int {
     }
 }
 
+
+
+
+//first try here is with duration only and only count down. Make another for up?
+struct timerViewBetter: View {
+    //Should have enither remaining OR a specific time until.
+    //set time makes sense but when paused,
+    @Binding var TimerVM: TimerViewModel
+    var endDate: Date?
+//    init(){
+//        if isRunning{
+//            endDate = Date.now.addingTimeInterval (TimeInterval(timeRemaining))
+//        }
+//        endDate = nil
+//        
+//    }
+    var body: some View{
+        Text( TimerVM.timeRemaining.hmsFormatted())
+            .font(Font.system(size: 60))
+            .monospaced()
+            .foregroundColor(.orange)
+    }
+}
+
+
+
+//This is a little conflated as a set timer vs a timer to a specific time.
 struct timerView: View {
     @State var tmpbo = false
     @Binding var timeRemaining: Int
@@ -286,10 +318,12 @@ struct timerView: View {
             }
             //Text(timeRemaining.hmsFormatted()) //Text(event.startDate, style: .timer)
             Text(
-                timerInterval: timerrrrange,
+                timeRemaining.hmsFormatted()//!Using this is wrong. Ticks happen every.5 second so this goes twice as fast
+                //timerInterval: timerrrrange,
+                //countsDown: false
+                
                 //timerInterval: startTime...Date(timeInterval: (duration * 60), since: startTime),
                 //pauseTime: Date(timeInterval: (1 * 60), since: startTime),
-                countsDown: false
                 
             )
                 .font(Font.system(size: 60))
@@ -300,8 +334,10 @@ struct timerView: View {
     }
 }
 
+//OLD! Replaced with better. Need to clean up in refactor.
 struct clockView: View {
-    @State var timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
+    
+    @State var timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect().share()//Publishers.Autoconnect<Timer.TimerPublisher>
     @State var notQuiteNow: Date = Date.now
     var body: some View{
         
@@ -312,6 +348,22 @@ struct clockView: View {
             .monospaced()
             .onReceive(timer) { _ in
                 notQuiteNow = Date.now
+            }
+    }
+}
+
+struct clockViewBetter: View {
+    let timer: Publishers.Autoconnect<Timer.TimerPublisher>
+    @State var notQuiteNow: Date = Date.now
+    var body: some View{
+        
+        //Text(Date.now, style: .time)
+        Text(notQuiteNow, format: .dateTime.hour(.twoDigits(amPM: .omitted)).minute().second())
+            .font(Font.system(size: 90))
+            .colorInvert()
+            .monospaced()
+            .onReceive(timer) { timerTickDate in
+                notQuiteNow = timerTickDate
             }
     }
 }

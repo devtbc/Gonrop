@@ -299,6 +299,7 @@ struct GaugeDemo: View {
                 //.padding(.horizontal, 40)
         }
         .animation(.smooth, value: progress)
+        
     }
 }
 
