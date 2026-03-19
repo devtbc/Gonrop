@@ -8,11 +8,8 @@
 import SwiftUI
 import Combine
 
-//import GNButtons
-
 struct ContentView: View {
 
-    //timeRemaining = savedTimeRemaining -[currentTime timeIntervalSinceDate:savedDate];
     @State var viewModel = ViewModel()
     @State var tmpTimeRem = 42//934
     
@@ -39,7 +36,7 @@ struct ContentView: View {
                         .frame(width: geo.size.width, height: geo.size.height*3/4)//650
                         .clipShape(UnevenRoundedRectangle(topLeadingRadius: 50))
                         .mask(alphaMaskBottom(width:CGFloat(geo.size.width), height:CGFloat(geo.size.height)))
-                } //VStack of background and masks
+                } //End of Stack of background and masks
                 .padding()
                 .background(Color.black)
                 .containerRelativeFrame([.horizontal])
@@ -51,7 +48,7 @@ struct ContentView: View {
                 //Content on background in the Zstack
                 VStack{
                     HStack{
-                        clockViewBetter(timer: viewModel.timer)
+                        clockView(timer: viewModel.timer)
                         Spacer()
                         calView()
                     }
@@ -65,17 +62,18 @@ struct ContentView: View {
                     Spacer()
                     Spacer()
                     
-                    //displayView(timer: viewModel.timer, tmpTimeRem: $viewModel.tmpTimeRem, viewModel: $viewModel)
                     HStack(spacing: 50){
                         
-                        GaugeDemo(progress: Double(0.5))
+                        GaugeDemo(progress: Double(0.69))
                             .frame(width: 200, height: 200)
                             .onReceive(viewModel.timer) { _ in
                                 
                             }
                         VStack{
-                            timerViewBetter(TimerVM: $viewModel.timerVM1)
-                            timerView(timeRemaining: $tmpTimeRem)
+                            
+                            timerView(timerVM: $viewModel.timerVM1)
+                            
+                            timerViewMarkedForDeath(timeRemaining: $tmpTimeRem)
                                 .onReceive(viewModel.timer) { _ in
                                     if self.tmpTimeRem > 0 {
                                         tmpTimeRem -= 1
@@ -86,7 +84,7 @@ struct ContentView: View {
                         
                     }
                     
-                    buttonView( tmpTimeRem: $viewModel.tmpTimeRem)
+                    buttonView(timerVM: $viewModel.timerVM1)
                     Spacer()
                 } //end of VStack
                 .offset(CGSize(width: -geo.size.width*0.06, height: geo.size.height*0.1))
@@ -162,47 +160,8 @@ struct calView: View {
 
 
 
-struct displayView: View {
-   // @Binding var timeRemaining: Int
-    //timeRemaining = savedTimeRemaining -[currentTime timeIntervalSinceDate:savedDate];
-    let timer: Publishers.Autoconnect<Timer.TimerPublisher>
-    //@Binding var timer: AnyPublisher<Date,Never>
-    @Binding var tmpTimeRem: Int//934
-    @State var clock = ClockService()
-    @Binding var viewModel: ViewModel
-    
-    var body: some View {
-
-        
-        //@Environment(ClockService.self) var clock
-        
-        ////Calendar.current.dateComponents([.minute], from: Date()).minute!
-        HStack(spacing: 50){
-            Text(clock.now.formatted(.dateTime.hour().minute().second()))
-                .monospacedDigit()
-                .colorInvert()
-            GaugeDemo(progress: Double(0.5))
-                .frame(width: 200, height: 200)
-                .onReceive(timer) { _ in
-                    
-                }
-            VStack{
-                timerViewBetter(TimerVM: $viewModel.timerVM1)
-                timerView(timeRemaining: $tmpTimeRem)
-                    .onReceive(timer) { _ in
-                        if self.tmpTimeRem > 0 {
-                            tmpTimeRem -= 1
-                        }
-                    }
-            }
-          
-
-        }
-    }
-}
 //I think it's fun, this needing to work backwords and remember were your brain was
 ////TODO: make an alart ir confrim/reject buttons and specific area for them. Btm right?
-
 //struct confirmRejectView: View {
 //    var body: some View {
 //        GNButton(<#T##label: String##String#>, <#T##action: () -> Void##() -> Void#>)
@@ -210,7 +169,7 @@ struct displayView: View {
 //}
 
 struct buttonView: View {
-    @Binding var tmpTimeRem: Int
+    @Binding var timerVM: TimerViewModel
     
     var body: some View{
         Grid{
@@ -220,36 +179,20 @@ struct buttonView: View {
             }.border(.red) // or
                 .background(.red.opacity(0.2))
             GridRow{
-                GNButton("Blu Task",  { })
-                GNButton("ST",  { })
+                GNButton("Blu Task",  { timerVM.start() })
+                GNButton("ST",  { timerVM.stop() })
             }
             GridRow{
                 GNButton("Grn Task",  { })
-                GNButton("AT",  { tmpTimeRem += 240 })
+                GNButton("AT",  { timerVM.addTime(240)})//TODO: takes another tick for this to go
             }
-//            GridRow{
-//                Spacer()
-//                GNButton("Yel Finished",  { })
-//            }
-            
-//            GridRow {
-//                ForEach(0..<2) { num in GNButton("This is \(num) Button", {}) }
-//            }
-//            //.gridColumnAlignment(.leading)
-//            .padding(.vertical, 10)
             
             GridRow{
-
+                
             }
             
-        }.onAppear() {
-            // no need for UI updates at startup
-            //self.stopTimer()
         } //end of grid
-        
-    
     }
-    
 }
 
 extension Int {
@@ -267,13 +210,16 @@ extension Int {
 
 
 
+//tmp thingking out note.Should make fixed number of timerViews at first. Canextend in the future if needed.
+
 
 //first try here is with duration only and only count down. Make another for up?
-struct timerViewBetter: View {
+struct timerView: View {
     //Should have enither remaining OR a specific time until.
     //set time makes sense but when paused,
-    @Binding var TimerVM: TimerViewModel
+    @Binding var timerVM: TimerViewModel
     var endDate: Date?
+    var cancellable: AnyCancellable?
 //    init(){
 //        if isRunning{
 //            endDate = Date.now.addingTimeInterval (TimeInterval(timeRemaining))
@@ -281,8 +227,12 @@ struct timerViewBetter: View {
 //        endDate = nil
 //        
 //    }
+    
+    
+    
+    
     var body: some View{
-        Text( TimerVM.timeRemaining.hmsFormatted())
+        Text( timerVM.timeRemaining.hmsFormatted())
             .font(Font.system(size: 60))
             .monospaced()
             .foregroundColor(.orange)
@@ -292,7 +242,8 @@ struct timerViewBetter: View {
 
 
 //This is a little conflated as a set timer vs a timer to a specific time.
-struct timerView: View {
+//Only the status bar stuff should be pulled out
+struct timerViewMarkedForDeath: View {
     @State var tmpbo = false
     @Binding var timeRemaining: Int
 
@@ -312,7 +263,7 @@ struct timerView: View {
                     .scaleEffect(0.6, anchor: .center)
             }
             else {
-                scaleBar(showAni: $tmpbo)
+                scaleBarDown(showAni: $tmpbo)
                     .onChange(of: timeRemaining){tmpbo.toggle()}
                     .scaleEffect(0.6, anchor: .center)
             }
@@ -334,25 +285,7 @@ struct timerView: View {
     }
 }
 
-//OLD! Replaced with better. Need to clean up in refactor.
 struct clockView: View {
-    
-    @State var timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect().share()//Publishers.Autoconnect<Timer.TimerPublisher>
-    @State var notQuiteNow: Date = Date.now
-    var body: some View{
-        
-        //Text(Date.now, style: .time)
-        Text(notQuiteNow, format: .dateTime.hour(.twoDigits(amPM: .omitted)).minute().second())
-            .font(Font.system(size: 90))
-            .colorInvert()
-            .monospaced()
-            .onReceive(timer) { _ in
-                notQuiteNow = Date.now
-            }
-    }
-}
-
-struct clockViewBetter: View {
     let timer: Publishers.Autoconnect<Timer.TimerPublisher>
     @State var notQuiteNow: Date = Date.now
     var body: some View{
@@ -397,19 +330,13 @@ struct alphaMaskBottom :View {
         //white is to keep and black is toss
         VStack(spacing: -height ){
             Rectangle()
-            // .fill()
                 .foregroundColor(.white)
                 .frame(width: width, height: height)
-            //                .mask(alignment: .topLeading){
-            //                    UnevenRoundedRectangle(topLeadingRadius: 50)
-            //                }
             Rectangle()
-            // .fill()
                 .foregroundColor(.black)
                 .frame(width: width, height: height*3/4)
                 .clipShape(.rect(cornerRadius: 30))
                 .offset(x: width/10, y:height/30)
-            // }
             
         }
         .compositingGroup()
@@ -426,9 +353,6 @@ struct maskView: View {
                 .fill()
                 .foregroundColor(.white)
                 .frame(width: nil, height: 300)
-//                .mask(alignment: .topLeading){
-//                    UnevenRoundedRectangle(topLeadingRadius: 50)
-//                }
             Rectangle()
                 .fill()
                 .foregroundColor(.black)

@@ -5,24 +5,14 @@
 //  Created by Tyler Stiffler on 2/9/25.
 //
 
+///Ideas: Number selector either in binary or options to expand from yesNO/4/8/16
+
 import SwiftUI
 
 func GNButton(_ label: String, _ action: @escaping() -> Void) -> some View {
     return Button(label) { action()
     }
-    
     .buttonStyle(GNButtonStyle())
-//.frame(width: 400)
-//    .padding(10)
-//    .foregroundStyle(.black)
-//    .background(Color.orange)
-//    .clipShape(.capsule)
-    
-//    .padding(.horizontal, 30)
-//    //.padding(20)
-//    .foregroundStyle(.black)
-//    .background(Color.orange)
-//    .clipShape(.capsule)
 }
 
 
@@ -37,22 +27,17 @@ func GNToggle(_ label: String, _ action: @escaping() -> Void) -> some View {
     @State var toggleState = false
 
 
-    var tmpBody: some View {
+    var body: some View {
         Toggle(isOn: $toggleState) {
             Text(label)
-                .font(  .system( size: 28)
+                .font(
+                    .system( size: 28)
                     .weight(.semibold)
-                        .monospaced()
-                        
-                )
+                    .monospaced()  )
         }
         
     }
-
-    return  tmpBody//GNButton(action)
-       // Text("Unfinshed Toggle!")
-        
-
+    return  body
 }
 
 struct GNButtonStyle: ButtonStyle{
@@ -92,7 +77,7 @@ struct toggleViewTests: View {
         
         let cornersLeft = RectangleCornerRadii(topLeading:(usedHeight/2),bottomLeading: (usedHeight/2), bottomTrailing: (0), topTrailing: (0))
         let cornersRight = RectangleCornerRadii(topLeading:(0),bottomLeading: (0), bottomTrailing: (usedHeight/2), topTrailing: (usedHeight/2))
-        //
+
         VStack{
             
             //whole button
@@ -141,7 +126,7 @@ struct toggleViewTests: View {
     }
 }
 
-struct scaleBar: View {
+struct scaleBarDown: View {
     //TODO: make it scaleup or down aka scaleDirection
     enum Direction{
         case up, down
